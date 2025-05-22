@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ~/dabra/scripts/java/install.sh
-# Instala OpenJDK manualmente desde Adoptium
+# Instala OpenJDK manualmente desde Adoptium con enlace simbólico
 
 JAVA_DIR="$HOME/dabra/scripts/java"
 mkdir -p "$JAVA_DIR"
@@ -20,24 +20,15 @@ wget -qO "$JAVA_DIR/$JDK_ARCHIVE" "$DOWNLOAD_URL"
 echo "Extrayendo JDK en $INSTALL_PATH..."
 tar -xzf "$JAVA_DIR/$JDK_ARCHIVE" -C "$INSTALL_PATH"
 
-# Obtener carpeta resultante
 JDK_FOLDER=$(tar -tf "$JAVA_DIR/$JDK_ARCHIVE" | head -1 | cut -f1 -d"/")
+BIN_PATH="$INSTALL_PATH/$JDK_FOLDER/bin"
 
-# Crear alias de entorno JAVA_HOME si no existe
-ALIAS_LINE="export JAVA_HOME=\"$INSTALL_PATH/$JDK_FOLDER\" && export PATH=\$JAVA_HOME/bin:\$PATH"
-BASH_ALIASES="$HOME/.bash_aliases"
-ZSH_RC="$HOME/.zshrc"
-
-if [[ -n "$ZSH_VERSION" ]]; then
-  if ! grep -Fxq "$ALIAS_LINE" "$ZSH_RC"; then
-    echo "$ALIAS_LINE" >> "$ZSH_RC"
-    echo "JAVA_HOME configurado en ~/.zshrc"
+# Crear enlaces simbólicos a java y javac
+for bin in java javac; do
+  if [[ -x "$BIN_PATH/$bin" ]]; then
+    sudo ln -sf "$BIN_PATH/$bin" "/usr/local/bin/$bin"
+    echo "Enlace simbólico creado: $bin -> $BIN_PATH/$bin"
   fi
-else
-  if ! grep -Fxq "$ALIAS_LINE" "$BASH_ALIASES"; then
-    echo "$ALIAS_LINE" >> "$BASH_ALIASES"
-    echo "JAVA_HOME configurado en ~/.bash_aliases"
-  fi
-fi
+done
 
-echo "JDK instalado en $INSTALL_PATH/$JDK_FOLDER. Reinicia tu shell para aplicar JAVA_HOME."
+echo "Java instalado y enlazado. Ejecuta 'java -version' para verificar."
