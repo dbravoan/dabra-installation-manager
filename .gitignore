@@ -1,0 +1,19 @@
+# Ignorar todo por defecto
+*
+
+# Permitir scripts de instalación y actualización
+!*/install.sh
+!*/update.sh
+!install.sh
+
+# Incluir documentación
+!.gitignore
+!README.md
+
+# Ignorar archivos innecesarios
+*.log
+*.tmp
+*.bak
+*.tar.gz
+*.zip
+.DS_Store
